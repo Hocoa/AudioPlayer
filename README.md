@@ -3,6 +3,9 @@
 
 [Demo](https://hocoa.github.io/AudioPlayer/dist/index.html)
 
+
+![Image text](example.png)
+![Image text](example1.png)
 ## Project setup
 ```
 npm install

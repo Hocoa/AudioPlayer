@@ -1,7 +1,7 @@
 # my-project
 
 
-demo[https://hocoa.github.io/AudioPlayer/dist/index.html]
+[Demo](https://hocoa.github.io/AudioPlayer/dist/index.html)
 
 ## Project setup
 ```

@@ -92,7 +92,7 @@ export default {
       // 加载音频 start
       let listener = new THREE.AudioListener(); // 监听者
       audio = new THREE.Audio(listener); // 非位置音频对象
-      let audioUrl = require("../static/audio.flac");
+      let audioUrl = require("../static/audio.mp3");
       this.audioLoad(audioUrl);
       // 加载音频 end
 

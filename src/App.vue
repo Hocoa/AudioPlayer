@@ -26,12 +26,13 @@ import { Triangle } from "./components/Triangle";
 
 let renderer, scene, camera, controls, stats, composer;
 let gui = {
-  R: 0,
-  G: 175,
-  B: 10,
+  R: 20,
+  G: 90,
+  B: 225,
   TrianglesBgColor: 0x03a9f4,
   TrianglesLineColor: 0x03a9f4,
-  lineColor: 0x00ffff
+  lineColor: 0x00ffff,
+  rotate: false
 };
 let audio, analyser; // 音频
 let linesGroup,
@@ -62,16 +63,16 @@ export default {
       scene = new THREE.Scene();
       // scene.background = new THREE.TextureLoader().load(require('@/assets/bg2.jpg'));
 
-      // {
-      //   scene.background = new THREE.CubeTextureLoader().load([
-      //     require('@/assets/skybox/right.jpg'),
-      //     require('@/assets/skybox/left.jpg'),
-      //     require('@/assets/skybox/top.jpg'),
-      //     require('@/assets/skybox/bottom.jpg'),
-      //     require('@/assets/skybox/front.jpg'),
-      //     require('@/assets/skybox/back.jpg')
-      //   ]);
-      // }
+      {
+        scene.background = new THREE.CubeTextureLoader().load([
+          require('@/assets/skybox/right.jpg'),
+          require('@/assets/skybox/left.jpg'),
+          require('@/assets/skybox/top.jpg'),
+          require('@/assets/skybox/bottom.jpg'),
+          require('@/assets/skybox/front.jpg'),
+          require('@/assets/skybox/back.jpg')
+        ]);
+      }
       camera = new THREE.PerspectiveCamera(
         75,
         window.innerWidth / window.innerHeight,
@@ -218,7 +219,7 @@ export default {
         new THREE.Vector3(0, 0, 0),
         Math.random() * 360,
         randomRange(5, 1),
-        randomRange(0.1, 0.02),
+        randomRange(0.1, 0.05),
         material,
         lineMaterial,
         {
@@ -300,18 +301,27 @@ export default {
           barGroup.scale.set(this.scale, this.scale, this.scale);
           barGroup.children.forEach((elem, index) => {
             if (gui.R) {
-              elem.children[0].material.color.r = arr[index] / gui.R;
+              elem.children[0].material.color.r = arr[index] / (gui.R * 3);
             }
             if (gui.G) {
-              elem.children[0].material.color.g = arr[index] / gui.G;
+              elem.children[0].material.color.g = arr[index] / (gui.G * 3);
             }
             if (gui.B) {
-              elem.children[0].material.color.b = arr[index] / gui.B;
+              elem.children[0].material.color.b = arr[index] / (gui.B * 3);
             }
             if (arr[index] === 0) {
               elem.scale.set(0, 0, 0);
             } else {
-              elem.scale.set(1, arr[index] / 20 + 0.1, 1);
+              let m = arr[index] / 20;
+              let targetRange = Math.max(
+                arr[index] / 20 - arr[index - 1] / 20,
+                0
+              );
+              if (m < targetRange) {
+                m = targetRange;
+              }
+
+              elem.scale.set(1, m, 1);
             }
           });
         }
@@ -348,7 +358,7 @@ export default {
       //是否可以缩放
       controls.enableZoom = true;
       //是否自动旋转
-      controls.autoRotate = false;
+      controls.autoRotate = gui.rotate;
       //设置相机距离原点的最远距离
       controls.minDistance = 1;
       //设置相机距离原点的最远距离
@@ -366,9 +376,12 @@ export default {
       //声明一个保存需求修改的相关数据的对象
       let datGui = new GUI();
       //将设置属性添加到gui当中，gui.add(对象，属性，最小值，最大值）
-      datGui.add(gui, "R", 0, 180);
-      datGui.add(gui, "G", 0, 180);
-      datGui.add(gui, "B", 0, 180);
+      datGui.add(gui, "R", 0, 255);
+      datGui.add(gui, "G", 0, 255);
+      datGui.add(gui, "B", 0, 255);
+      datGui.add(gui, "rotate").onChange(function(val) {
+        controls.autoRotate = val;
+      });
       datGui.addColor(gui, "TrianglesBgColor").onChange(function() {
         TriangleGroup.traverse(function(child) {
           if (child.isMesh)

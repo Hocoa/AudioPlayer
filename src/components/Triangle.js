@@ -1,8 +1,8 @@
 // import * as THREE from '../lib/three.module.js';
-import * as THREE from 'three';
-import {randomRange} from './randomRange.js';
+import * as THREE from "three";
+import { randomRange } from "./randomRange.js";
 
-export  class ILineDistanceOption {
+export class ILineDistanceOption {
   startShow;
   endShow;
   startHide;
@@ -28,7 +28,17 @@ export class Triangle {
   line;
   group;
   onDelete;
-  constructor(size, center, angle, speed, rotateSpeed, material, lineMaterial, lineDistance, cb) {
+  constructor(
+    size,
+    center,
+    angle,
+    speed,
+    rotateSpeed,
+    material,
+    lineMaterial,
+    lineDistance,
+    cb
+  ) {
     this.rotateSpeed = rotateSpeed;
     this.angle = angle;
     this.speed = speed;
@@ -36,22 +46,32 @@ export class Triangle {
     this.onDelete = cb;
     this.distance = lineDistance.startShow;
     this.showDistance = lineDistance;
-    this.panelMaterial = new THREE.MeshBasicMaterial().copy(material)
+    this.panelMaterial = new THREE.MeshBasicMaterial().copy(material);
     this.panelMaterial.transparent = true;
-    this.lineMaterial = new THREE.LineBasicMaterial().copy(lineMaterial)
+    this.lineMaterial = new THREE.LineBasicMaterial().copy(lineMaterial);
     this.lineMaterial.transparent = true;
     const panelGeometry = new THREE.Geometry();
     const lineGeometry = new THREE.Geometry();
 
     const vertices = [
-      new THREE.Vector3(randomRange(size, size / 2), randomRange(size, size / 2), randomRange(size, size / 2)),
-      new THREE.Vector3(randomRange(size, size / 2) * -1, randomRange(size, size / 2), randomRange(size, size / 2)-1),
-      new THREE.Vector3(randomRange(size, size / 2) * -1, randomRange(size, size / 2) * -1, randomRange(size, size / 2)-1)
-    ]
+      new THREE.Vector3(
+        randomRange(size, size / 2),
+        randomRange(size, size / 2),
+        randomRange(size, size / 2)
+      ),
+      new THREE.Vector3(
+        randomRange(size, size / 2) * -1,
+        randomRange(size, size / 2),
+        randomRange(size, size / 2) - 1
+      ),
+      new THREE.Vector3(
+        randomRange(size, size / 2) * -1,
+        randomRange(size, size / 2) * -1,
+        randomRange(size, size / 2) - 1
+      )
+    ];
 
-    panelGeometry.vertices.push(
-      ...vertices
-    )
+    panelGeometry.vertices.push(...vertices);
 
     lineGeometry.vertices.push(...[...vertices, vertices[0]]);
 
@@ -59,7 +79,7 @@ export class Triangle {
     panelGeometry.computeFaceNormals();
     panelGeometry.computeVertexNormals();
 
-    this.line = new THREE.Line(lineGeometry, this.lineMaterial)
+    this.line = new THREE.Line(lineGeometry, this.lineMaterial);
     this.mesh = new THREE.Mesh(panelGeometry, this.panelMaterial);
     this.group = new THREE.Group();
     this.translateOnAxis(this.translate(this.distance), 1);
@@ -75,9 +95,10 @@ export class Triangle {
   }
 
   translate(distance) {
-    const x = Math.cos(this.angle * Math.PI / 180) * distance;
-    const y = Math.sin(this.angle * Math.PI / 180) * distance;
-    const z =  distance*(0.5-Math.random())*2;
+    const x = Math.cos((this.angle * Math.PI) / 180) * distance;
+    const y = Math.sin((this.angle * Math.PI) / 180) * distance;
+    const z =
+      (Math.cos((this.angle * Math.PI) / 360) * distance * this.angle) / 180;
     return new THREE.Vector3(x, y, z);
   }
 
@@ -89,7 +110,8 @@ export class Triangle {
     this.translateOnAxis(this.translate(delay * this.speed), 1);
     this.distance += delay * this.speed;
     this.rotateZ(this.rotateSpeed * delay);
-    this.panelMaterial.opacity = this.opacity(this.distance, this.showDistance) * this.panelOpacity;
+    this.panelMaterial.opacity =
+      this.opacity(this.distance, this.showDistance) * this.panelOpacity;
     this.lineMaterial.opacity = this.opacity(this.distance, this.showDistance);
     if (this.distance > this.showDistance.endHide) {
       this.delete();
@@ -104,9 +126,15 @@ export class Triangle {
 
   opacity(distance, showDistance) {
     if (this.distance < showDistance.endShow) {
-      return (this.distance - showDistance.startShow) / (showDistance.endShow - showDistance.startShow);
+      return (
+        (this.distance - showDistance.startShow) /
+        (showDistance.endShow - showDistance.startShow)
+      );
     } else if (this.distance > showDistance.startHide) {
-      return (showDistance.endHide - this.distance) / (showDistance.endHide - showDistance.startHide);
+      return (
+        (showDistance.endHide - this.distance) /
+        (showDistance.endHide - showDistance.startHide)
+      );
     } else {
       return 1;
     }

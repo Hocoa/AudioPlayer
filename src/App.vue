@@ -8,8 +8,7 @@
 </template>
 
 <script>
-// import * as THREE from './lib/three.module.js';
-import * as THREE from "three";
+import * as THREE from "./lib/three.module.js";
 import { OrbitControls } from "./lib/OrbitControls.js";
 import { GUI } from "./lib/dat.gui.module.js";
 
@@ -335,7 +334,7 @@ export default {
         Triangles.forEach(triangle => triangle.transition(Delta));
       }
 
-      // renderer.render(scene, camera);
+       // renderer.render(scene, camera);
       composer.render();
       requestAnimationFrame(this.animate);
     },

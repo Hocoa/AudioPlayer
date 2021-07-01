@@ -1,103 +1,106 @@
-/**
- * @author alteredq / http://alteredqualia.com/
- */
+import { Pass } from './Pass';
 
-import { Pass } from "./Pass.js";
+var MaskPass = function ( scene, camera ) {
 
-var MaskPass = function (scene, camera) {
-  Pass.call(this);
+	Pass.call( this );
 
-  this.scene = scene;
-  this.camera = camera;
+	this.scene = scene;
+	this.camera = camera;
 
-  this.clear = true;
-  this.needsSwap = false;
+	this.clear = true;
+	this.needsSwap = false;
 
-  this.inverse = false;
+	this.inverse = false;
+
 };
 
-MaskPass.prototype = Object.assign(Object.create(Pass.prototype), {
-  constructor: MaskPass,
+MaskPass.prototype = Object.assign( Object.create( Pass.prototype ), {
 
-  render: function (
-    renderer,
-    writeBuffer,
-    readBuffer /*, deltaTime, maskActive */
-  ) {
-    var context = renderer.getContext();
-    var state = renderer.state;
+	constructor: MaskPass,
 
-    // don't update color or depth
+	render: function ( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
 
-    state.buffers.color.setMask(false);
-    state.buffers.depth.setMask(false);
+		var context = renderer.getContext();
+		var state = renderer.state;
 
-    // lock buffers
+		// don't update color or depth
 
-    state.buffers.color.setLocked(true);
-    state.buffers.depth.setLocked(true);
+		state.buffers.color.setMask( false );
+		state.buffers.depth.setMask( false );
 
-    // set up stencil
+		// lock buffers
 
-    var writeValue, clearValue;
+		state.buffers.color.setLocked( true );
+		state.buffers.depth.setLocked( true );
 
-    if (this.inverse) {
-      writeValue = 0;
-      clearValue = 1;
-    } else {
-      writeValue = 1;
-      clearValue = 0;
-    }
+		// set up stencil
 
-    state.buffers.stencil.setTest(true);
-    state.buffers.stencil.setOp(
-      context.REPLACE,
-      context.REPLACE,
-      context.REPLACE
-    );
-    state.buffers.stencil.setFunc(context.ALWAYS, writeValue, 0xffffffff);
-    state.buffers.stencil.setClear(clearValue);
-    state.buffers.stencil.setLocked(true);
+		var writeValue, clearValue;
 
-    // draw into the stencil buffer
+		if ( this.inverse ) {
 
-    renderer.setRenderTarget(readBuffer);
-    if (this.clear) renderer.clear();
-    renderer.render(this.scene, this.camera);
+			writeValue = 0;
+			clearValue = 1;
 
-    renderer.setRenderTarget(writeBuffer);
-    if (this.clear) renderer.clear();
-    renderer.render(this.scene, this.camera);
+		} else {
 
-    // unlock color and depth buffer for subsequent rendering
+			writeValue = 1;
+			clearValue = 0;
 
-    state.buffers.color.setLocked(false);
-    state.buffers.depth.setLocked(false);
+		}
 
-    // only render where stencil is set to 1
+		state.buffers.stencil.setTest( true );
+		state.buffers.stencil.setOp( context.REPLACE, context.REPLACE, context.REPLACE );
+		state.buffers.stencil.setFunc( context.ALWAYS, writeValue, 0xffffffff );
+		state.buffers.stencil.setClear( clearValue );
+		state.buffers.stencil.setLocked( true );
 
-    state.buffers.stencil.setLocked(false);
-    state.buffers.stencil.setFunc(context.EQUAL, 1, 0xffffffff); // draw if == 1
-    state.buffers.stencil.setOp(context.KEEP, context.KEEP, context.KEEP);
-    state.buffers.stencil.setLocked(true);
-  },
-});
+		// draw into the stencil buffer
+
+		renderer.setRenderTarget( readBuffer );
+		if ( this.clear ) renderer.clear();
+		renderer.render( this.scene, this.camera );
+
+		renderer.setRenderTarget( writeBuffer );
+		if ( this.clear ) renderer.clear();
+		renderer.render( this.scene, this.camera );
+
+		// unlock color and depth buffer for subsequent rendering
+
+		state.buffers.color.setLocked( false );
+		state.buffers.depth.setLocked( false );
+
+		// only render where stencil is set to 1
+
+		state.buffers.stencil.setLocked( false );
+		state.buffers.stencil.setFunc( context.EQUAL, 1, 0xffffffff ); // draw if == 1
+		state.buffers.stencil.setOp( context.KEEP, context.KEEP, context.KEEP );
+		state.buffers.stencil.setLocked( true );
+
+	}
+
+} );
+
 
 var ClearMaskPass = function () {
-  Pass.call(this);
 
-  this.needsSwap = false;
+	Pass.call( this );
+
+	this.needsSwap = false;
+
 };
 
-ClearMaskPass.prototype = Object.create(Pass.prototype);
+ClearMaskPass.prototype = Object.create( Pass.prototype );
 
-Object.assign(ClearMaskPass.prototype, {
-  render: function (
-    renderer /*, writeBuffer, readBuffer, deltaTime, maskActive */
-  ) {
-    renderer.state.buffers.stencil.setLocked(false);
-    renderer.state.buffers.stencil.setTest(false);
-  },
-});
+Object.assign( ClearMaskPass.prototype, {
+
+	render: function ( renderer /*, writeBuffer, readBuffer, deltaTime, maskActive */ ) {
+
+		renderer.state.buffers.stencil.setLocked( false );
+		renderer.state.buffers.stencil.setTest( false );
+
+	}
+
+} );
 
 export { MaskPass, ClearMaskPass };
